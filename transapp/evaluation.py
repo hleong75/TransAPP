@@ -19,6 +19,7 @@ class EvaluationReport:
 class Evaluator:
     """Evaluate offline routing performance and coverage."""
 
+    # Minimal placeholder estimate for the lightweight offline dataset bundle.
     STORAGE_ESTIMATE_MB = 2.5
 
     def __init__(self, planner: RoutePlanner) -> None:
@@ -42,7 +43,7 @@ class Evaluator:
         coverage_ratio = 0.0 if not total else (len(options) / total)
         modes = tuple(sorted(self.planner.available_modes()))
         storage_estimate_mb = self.STORAGE_ESTIMATE_MB
-        stability_score = max(0.0, 1.0 - failures / max(1, len(options) + failures))
+        stability_score = 0.0 if not total else max(0.0, 1.0 - failures / total)
         return EvaluationReport(
             routes_tested=len(options),
             avg_duration=avg_duration,

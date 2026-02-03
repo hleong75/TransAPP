@@ -17,6 +17,14 @@ class RouteOption:
     steps: tuple[str, ...]
 
 
+@dataclass(order=True)
+class _QueueItem:
+    cost: float
+    node: str
+    modes: tuple[str, ...]
+    steps: tuple[str, ...]
+
+
 class RoutePlanner:
     """Multimodal route planner using preloaded offline data."""
 
@@ -25,12 +33,16 @@ class RoutePlanner:
         self.feed = feed
 
     def _walk_routes(self, origin: str, destination: str) -> Iterable[RouteOption]:
-        frontier: list[tuple[float, str, tuple[str, ...]]] = [(0.0, origin, ())]
+        frontier: list[_QueueItem] = [_QueueItem(0.0, origin, (), ())]
         best: dict[str, float] = {origin: 0.0}
         while frontier:
-            total, node, modes = heappop(frontier)
+            current = heappop(frontier)
+            total = current.cost
+            node = current.node
+            modes = current.modes
+            steps = current.steps
             if node == destination:
-                yield RouteOption(origin, destination, total, tuple(modes), tuple(modes))
+                yield RouteOption(origin, destination, total, modes, steps)
                 return
             if total > best.get(node, float("inf")):
                 continue
@@ -38,9 +50,16 @@ class RoutePlanner:
                 new_total = total + edge.duration_min
                 if new_total < best.get(edge.destination, float("inf")):
                     best[edge.destination] = new_total
+                    new_modes = modes + (edge.mode,)
+                    new_steps = steps + (f"{edge.origin}->{edge.destination}:{edge.mode}",)
                     heappush(
                         frontier,
-                        (new_total, edge.destination, modes + (edge.mode,)),
+                        _QueueItem(
+                            new_total,
+                            edge.destination,
+                            new_modes,
+                            new_steps,
+                        ),
                     )
 
     def _gtfs_routes(self, origin: str, destination: str) -> Iterable[RouteOption]:

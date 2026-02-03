@@ -19,4 +19,5 @@ class Agent:
     role: str = "agent"
 
     def propose(self, report: EvaluationReport) -> Iterable[Proposal]:
+        """Return improvement proposals based on the evaluation report."""
         raise NotImplementedError
