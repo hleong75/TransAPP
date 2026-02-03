@@ -61,6 +61,6 @@ class RoutePlanner:
         return min(options, key=lambda option: option.total_duration)
 
     def available_modes(self) -> set[str]:
-        modes = {edge.mode for edge in self.network._edges}
+        modes = {edge.mode for edge in self.network.edges}
         modes.update(trip.mode for trip in self.feed.trips)
         return modes

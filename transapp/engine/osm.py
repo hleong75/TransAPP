@@ -29,6 +29,10 @@ class OSMNetwork:
         nodes.update(edge.destination for edge in self._edges)
         return nodes
 
+    @property
+    def edges(self) -> tuple[OSMEdge, ...]:
+        return self._edges
+
     def neighbors(self, node: str) -> list[OSMEdge]:
         return list(self._adjacency.get(node, []))
 
