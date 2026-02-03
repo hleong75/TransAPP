@@ -38,8 +38,8 @@ class Evaluator:
             if options
             else 0.0
         )
-        total = len(options) + failures
-        coverage_ratio = 0.0 if not scenarios_list else (len(options) / total)
+        total = len(scenarios_list)
+        coverage_ratio = 0.0 if not total else (len(options) / total)
         modes = tuple(sorted(self.planner.available_modes()))
         storage_estimate_mb = self.STORAGE_ESTIMATE_MB
         stability_score = max(0.0, 1.0 - failures / max(1, len(options) + failures))

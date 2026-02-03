@@ -8,13 +8,14 @@ from transapp.agents.builder import BuilderAgent
 from transapp.agents.optimizer import OptimizerAgent
 from transapp.agents.reviewer import ReviewerAgent
 from transapp.agents.validator import ValidatorAgent
+from transapp.agents.base import Proposal
 from transapp.evaluation import EvaluationReport
 
 
 @dataclass(frozen=True)
 class MasterReport:
     evaluation: EvaluationReport
-    proposals: tuple
+    proposals: tuple[Proposal, ...]
 
 
 class MasterAgent:

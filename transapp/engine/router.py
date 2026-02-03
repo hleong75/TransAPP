@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from collections import deque
 from dataclasses import dataclass
+from heapq import heappop, heappush
 from typing import Iterable
 
 from transapp.engine.gtfs import GTFSFeed, GTFSTrip
@@ -25,20 +25,23 @@ class RoutePlanner:
         self.feed = feed
 
     def _walk_routes(self, origin: str, destination: str) -> Iterable[RouteOption]:
-        frontier = deque([(origin, 0.0, ())])
-        visited = set()
+        frontier: list[tuple[float, str, tuple[str, ...]]] = [(0.0, origin, ())]
+        best: dict[str, float] = {origin: 0.0}
         while frontier:
-            node, total, modes = frontier.popleft()
+            total, node, modes = heappop(frontier)
             if node == destination:
                 yield RouteOption(origin, destination, total, tuple(modes), tuple(modes))
+                return
+            if total > best.get(node, float("inf")):
                 continue
-            if node in visited:
-                continue
-            visited.add(node)
             for edge in self.network.neighbors(node):
-                frontier.append(
-                    (edge.destination, total + edge.duration_min, modes + (edge.mode,))
-                )
+                new_total = total + edge.duration_min
+                if new_total < best.get(edge.destination, float("inf")):
+                    best[edge.destination] = new_total
+                    heappush(
+                        frontier,
+                        (new_total, edge.destination, modes + (edge.mode,)),
+                    )
 
     def _gtfs_routes(self, origin: str, destination: str) -> Iterable[RouteOption]:
         for trip in self.feed.trips_from(origin):
