@@ -23,9 +23,10 @@ class Evaluator:
         self.planner = planner
 
     def evaluate(self, scenarios: Iterable[tuple[str, str]]) -> EvaluationReport:
+        scenarios_list = list(scenarios)
         options: list[RouteOption] = []
         failures = 0
-        for origin, destination in scenarios:
+        for origin, destination in scenarios_list:
             try:
                 options.append(self.planner.plan(origin, destination))
             except ValueError:
@@ -35,7 +36,8 @@ class Evaluator:
             if options
             else 0.0
         )
-        coverage_ratio = 0.0 if not scenarios else (len(options) / (len(options) + failures))
+        total = len(options) + failures
+        coverage_ratio = 0.0 if not scenarios_list else (len(options) / total)
         modes = tuple(sorted(self.planner.available_modes()))
         storage_estimate_mb = 2.5
         stability_score = max(0.0, 1.0 - failures / max(1, len(options) + failures))

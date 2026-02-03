@@ -10,7 +10,7 @@ class ArchitectAgent(Agent):
     def propose(self, report: EvaluationReport):
         summary = (
             "Revoir la granularité des modules et séparer les pipelines de données "
-            "pour limiter la mémoire." 
+            "pour limiter la mémoire."
         )
         yield Proposal(
             title="Découpage des pipelines",

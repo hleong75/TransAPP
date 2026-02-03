@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -24,10 +25,10 @@ class RoutePlanner:
         self.feed = feed
 
     def _walk_routes(self, origin: str, destination: str) -> Iterable[RouteOption]:
-        frontier = [(origin, 0.0, [])]
+        frontier = deque([(origin, 0.0, ())])
         visited = set()
         while frontier:
-            node, total, modes = frontier.pop(0)
+            node, total, modes = frontier.popleft()
             if node == destination:
                 yield RouteOption(origin, destination, total, tuple(modes), tuple(modes))
                 continue
@@ -36,7 +37,7 @@ class RoutePlanner:
             visited.add(node)
             for edge in self.network.neighbors(node):
                 frontier.append(
-                    (edge.destination, total + edge.duration_min, modes + [edge.mode])
+                    (edge.destination, total + edge.duration_min, modes + (edge.mode,))
                 )
 
     def _gtfs_routes(self, origin: str, destination: str) -> Iterable[RouteOption]:
